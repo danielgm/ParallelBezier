@@ -13,7 +13,8 @@ void setup() {
 
   segments = new ArrayList<EditableLineSegment>();
   beziers = new ArrayList<EditableBezierSegment>();
-  createSegments();
+  loadSegments("settings.json");
+  //createSegments();
 
   strokeColor = 0xff030303;
   backgroundColor0 = 0xff69d3ce;
@@ -43,6 +44,11 @@ void createSegment(
   segments.add(end);
 
   beziers.add(new EditableBezierSegment(start, end));
+}
+
+void loadSegments(String path) {
+  JSONObject json = loadJSONObject(path);
+  updateFromJSONObject(json);
 }
 
 void draw() {
@@ -95,6 +101,9 @@ void keyReleased() {
     case 'r':
       save(fileNamer.next());
       break;
+    case 's':
+      saveJSONObject(toJSONObject(), "settings.json");
+      break;
   }
 }
 
@@ -122,3 +131,34 @@ void mouseReleased() {
   }
 }
 
+private void updateFromJSONObject(JSONObject json) {
+  JSONArray jsonBeziers = json.getJSONArray("beziers");
+  updateBeziersFromJSONArray(jsonBeziers);
+}
+
+private void updateBeziersFromJSONArray(JSONArray jsonBeziers) {
+  for (int i = 0; i < jsonBeziers.size(); i++) {
+    JSONObject jsonBezier = jsonBeziers.getJSONObject(i);
+
+    EditableBezierSegment bezier = new EditableBezierSegment();
+    bezier.updateFromJSONObject(jsonBezier);
+    beziers.add(bezier);
+
+    segments.add(new EditableLineSegment(bezier.getP0(), bezier.getC0()));
+    segments.add(new EditableLineSegment(bezier.getC1(), bezier.getP1()));
+  }
+}
+
+private JSONObject toJSONObject() {
+  JSONObject json = new JSONObject();
+  json.setJSONArray("beziers", beziersToJSONObject());
+  return json;
+}
+
+private JSONArray beziersToJSONObject() {
+  JSONArray jsonBeziers = new JSONArray();
+  for (int i = 0; i < beziers.size(); i++) {
+    jsonBeziers.setJSONObject(i, beziers.get(i).toJSONObject());
+  }
+  return jsonBeziers;
+}

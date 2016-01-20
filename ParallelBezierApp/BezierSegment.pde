@@ -1,7 +1,10 @@
 
 class BezierSegment implements IVectorFunction {
-  PVector p0, p1;
-  PVector c0, c1;
+  private PVector p0, c0, c1, p1;
+
+  BezierSegment() {
+    set();
+  }
 
   BezierSegment(
       float startX, float startY,
@@ -21,6 +24,22 @@ class BezierSegment implements IVectorFunction {
     set(start, end);
   }
 
+  PVector getP0() {
+    return p0.copy();
+  }
+
+  PVector getC0() {
+    return c0.copy();
+  }
+
+  PVector getC1() {
+    return c1.copy();
+  }
+
+  PVector getP1() {
+    return p1.copy();
+  }
+
   void set(
       float startX, float startY,
       float startControlX, float startControlY,
@@ -33,17 +52,24 @@ class BezierSegment implements IVectorFunction {
   }
 
   void set(PVector start, PVector startControl, PVector endControl, PVector end) {
-    p0 = start.get();
-    c0 = startControl.get();
-    c1 = endControl.get();
-    p1 = end.get();
+    p0 = start.copy();
+    c0 = startControl.copy();
+    c1 = endControl.copy();
+    p1 = end.copy();
   }
 
   void set(LineSegment start, LineSegment end) {
-    p0 = start.p0.get();
-    c0 = start.p1.get();
-    c1 = end.p0.get();
-    p1 = end.p1.get();
+    p0 = start.p0.copy();
+    c0 = start.p1.copy();
+    c1 = end.p0.copy();
+    p1 = end.p1.copy();
+  }
+
+  void set() {
+    p0 = new PVector();
+    c0 = new PVector();
+    c1 = new PVector();
+    p1 = new PVector();
   }
 
   void draw(PGraphics g) {
@@ -104,5 +130,26 @@ class BezierSegment implements IVectorFunction {
     + (3 * b + t * (-6 * b + b * 3 * t)) * t
     + (c * 3 - c * 3 * t) * t2
     + d * t3;
+  }
+
+  JSONObject toJSONObject() {
+    LineSegment start = new LineSegment(p0, c0);
+    LineSegment end = new LineSegment(c1, p1);
+
+    JSONObject json = new JSONObject();
+    json.setJSONObject("start", start.toJSONObject());
+    json.setJSONObject("end", end.toJSONObject());
+    return json;
+  }
+
+  void updateFromJSONObject(JSONObject json) {
+    p0.x = json.getJSONObject("start").getJSONObject("p0").getFloat("x");
+    p0.y = json.getJSONObject("start").getJSONObject("p0").getFloat("y");
+    c0.x = json.getJSONObject("start").getJSONObject("p1").getFloat("x");
+    c0.y = json.getJSONObject("start").getJSONObject("p1").getFloat("y");
+    c1.x = json.getJSONObject("end").getJSONObject("p0").getFloat("x");
+    c1.y = json.getJSONObject("end").getJSONObject("p0").getFloat("y");
+    p1.x = json.getJSONObject("end").getJSONObject("p1").getFloat("x");
+    p1.y = json.getJSONObject("end").getJSONObject("p1").getFloat("y");
   }
 }

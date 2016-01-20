@@ -1,20 +1,41 @@
 
 class EditableLineSegment extends LineSegment {
-  boolean isEditMode;
-  float handleRadius;
-  boolean isDragging0;
-  boolean isDragging1;
+  private PVector exposedP0;
+  private PVector exposedP1;
+  private boolean isEditMode;
+  private float handleRadius;
+  private boolean isDragging0;
+  private boolean isDragging1;
+
+  EditableLineSegment() {
+    init();
+    exposedP0 = new PVector();
+    exposedP1 = new PVector();
+  }
 
   EditableLineSegment(
       float startX, float startY,
       float endX, float endY) {
     super(startX, startY, endX, endY);
     init();
+    exposedP0 = new PVector(startX, startY);
+    exposedP1 = new PVector(endX, endY);
   }
 
   EditableLineSegment(
       PVector start, PVector end) {
     super(start, end);
+    init();
+    exposedP0 = start;
+    exposedP1 = end;
+  }
+
+  PVector getP0() {
+    return exposedP0;
+  }
+
+  PVector getP1() {
+    return exposedP1;
   }
 
   void init() {
@@ -33,32 +54,33 @@ class EditableLineSegment extends LineSegment {
   }
 
   void draw(PGraphics g) {
+    super.set(exposedP0, exposedP1);
     super.draw(g);
 
     if (isEditMode) {
-      drawHandle(g, p0);
-      drawHandle(g, p1);
+      drawHandle(g, getP0());
+      drawHandle(g, getP1());
     }
   }
 
   void mousePressed() {
     PVector mouse = new PVector(mouseX, mouseY);
-    if (hitTest(p0, mouse)) {
+    if (hitTest(exposedP0, mouse)) {
       isDragging0 = true;
     }
-    if (hitTest(p1, mouse)) {
+    if (hitTest(exposedP1, mouse)) {
       isDragging1 = true;
     }
   }
 
   void mouseDragged() {
     if (isDragging0) {
-      p0.x = mouseX;
-      p0.y = mouseY;
+      exposedP0.x = mouseX;
+      exposedP0.y = mouseY;
     }
     if (isDragging1) {
-      p1.x = mouseX;
-      p1.y = mouseY;
+      exposedP1.x = mouseX;
+      exposedP1.y = mouseY;
     }
   }
 
