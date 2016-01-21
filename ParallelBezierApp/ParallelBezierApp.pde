@@ -3,6 +3,7 @@ import java.util.Iterator;
 
 ArrayList<EditableLineSegment> segments;
 ArrayList<EditableBezierSegment> beziers;
+ArrayList<BezierCurve> curves;
 
 FileNamer fileNamer;
 
@@ -13,8 +14,10 @@ void setup() {
 
   segments = new ArrayList<EditableLineSegment>();
   beziers = new ArrayList<EditableBezierSegment>();
+  curves = new ArrayList<BezierCurve>();
   loadSegments("settings.json");
   //createSegments();
+  //createCurves();
 
   strokeColor = 0xff030303;
   backgroundColor0 = 0xff69d3ce;
@@ -51,6 +54,22 @@ void loadSegments(String path) {
   updateFromJSONObject(json);
 }
 
+void createCurves() {
+  BezierCurve curve;
+
+  curve = new BezierCurve();
+  curve.addControl(new LineSegment(100, 200, 120, 150));
+  curve.addControl(new LineSegment(300, 130, 350, 120));
+  curve.addControl(new LineSegment(450, 300, 500, 320));
+  curves.add(curve);
+
+  curve = new BezierCurve();
+  curve.addControl(new LineSegment(100, 400, 120, 350));
+  curve.addControl(new LineSegment(300, 330, 350, 320));
+  curve.addControl(new LineSegment(450, 500, 500, 520));
+  curves.add(curve);
+}
+
 void draw() {
   drawInterference(g);
 }
@@ -67,6 +86,7 @@ void drawInterference(PGraphics g) {
 
   drawSegments(g);
   drawBeziers(g);
+  drawCurves(g);
 
   g.popStyle();
   g.endDraw();
@@ -85,6 +105,14 @@ void drawBeziers(PGraphics g) {
   while (iter.hasNext()) {
     EditableBezierSegment bezier = iter.next();
     bezier.draw(g);
+  }
+}
+
+void drawCurves(PGraphics g) {
+  Iterator<BezierCurve> iter = curves.iterator();
+  while (iter.hasNext()) {
+    BezierCurve curve = iter.next();
+    curve.draw(g);
   }
 }
 
@@ -134,6 +162,8 @@ void mouseReleased() {
 private void updateFromJSONObject(JSONObject json) {
   JSONArray jsonBeziers = json.getJSONArray("beziers");
   updateBeziersFromJSONArray(jsonBeziers);
+  JSONArray jsonCurves = json.getJSONArray("curves");
+  updateCurvesFromJSONArray(jsonCurves);
 }
 
 private void updateBeziersFromJSONArray(JSONArray jsonBeziers) {
@@ -149,9 +179,20 @@ private void updateBeziersFromJSONArray(JSONArray jsonBeziers) {
   }
 }
 
+private void updateCurvesFromJSONArray(JSONArray jsonCurves) {
+  for (int i = 0; i < jsonCurves.size(); i++) {
+    JSONObject jsonBezier = jsonCurves.getJSONObject(i);
+
+    BezierCurve bezier = new BezierCurve();
+    bezier.updateFromJSONObject(jsonBezier, EditableLineSegment.class);
+    curves.add(bezier);
+  }
+}
+
 private JSONObject toJSONObject() {
   JSONObject json = new JSONObject();
   json.setJSONArray("beziers", beziersToJSONObject());
+  json.setJSONArray("curves", curvesToJSONObject());
   return json;
 }
 
@@ -162,3 +203,12 @@ private JSONArray beziersToJSONObject() {
   }
   return jsonBeziers;
 }
+
+private JSONArray curvesToJSONObject() {
+  JSONArray jsonCurves = new JSONArray();
+  for (int i = 0; i < curves.size(); i++) {
+    jsonCurves.setJSONObject(i, curves.get(i).toJSONObject());
+  }
+  return jsonCurves;
+}
+

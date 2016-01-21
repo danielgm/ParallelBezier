@@ -51,6 +51,10 @@ class LineSegment implements IVectorFunction {
     return PVector.add(p0, PVector.mult(PVector.sub(p1, p0), t));
   }
 
+  LineSegment copy() {
+    return new LineSegment(p0, p1);
+  }
+
   JSONObject toJSONObject() {
     JSONObject json = new JSONObject();
     json.setJSONObject("p0", toJSONObject(p0));

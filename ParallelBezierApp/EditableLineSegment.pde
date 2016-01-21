@@ -63,6 +63,10 @@ class EditableLineSegment extends LineSegment {
     }
   }
 
+  EditableLineSegment copy() {
+    return new EditableLineSegment(exposedP0, exposedP1);
+  }
+
   void mousePressed() {
     PVector mouse = new PVector(mouseX, mouseY);
     if (hitTest(exposedP0, mouse)) {

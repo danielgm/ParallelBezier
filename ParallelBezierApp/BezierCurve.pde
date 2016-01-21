@@ -1,4 +1,7 @@
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 class BezierCurve implements IVectorFunction {
   int POLYLINE_POINTS_PER_CONTROL = 100;
 
@@ -91,7 +94,7 @@ class BezierCurve implements IVectorFunction {
   }
 
   void addControl(LineSegment control) {
-    controls.add(control);
+    controls.add(control.copy());
     recalculate();
   }
 
@@ -208,6 +211,69 @@ class BezierCurve implements IVectorFunction {
         polylineLengths[i] = 0;
       }
     }
+  }
+
+  JSONObject toJSONObject() {
+    JSONArray jsonControls = new JSONArray();
+    for (int i = 0; i < controls.size(); i++) {
+      LineSegment control = controls.get(i);
+      jsonControls.setJSONObject(i, control.toJSONObject());
+    }
+
+    JSONObject json = new JSONObject();
+    json.setJSONArray("controls", jsonControls);
+    json.setInt("numPolylinePoints", numPolylinePoints);
+    json.setFloat("polylineLength", polylineLength);
+    return json;
+  }
+
+  void updateFromJSONObject(JSONObject json) {
+    updateFromJSONObject(json, LineSegment.class);
+  }
+
+  void updateFromJSONObject(JSONObject json, Class<? extends LineSegment> lineSegmentClass) {
+    controls = new ArrayList<LineSegment>();
+    JSONArray jsonControls = json.getJSONArray("controls");
+    for (int i = 0; i < jsonControls.size(); i++) {
+      LineSegment segment = newInstance(lineSegmentClass);
+      segment.updateFromJSONObject(jsonControls.getJSONObject(i));
+      controls.add(segment);
+    }
+
+    numPolylinePoints = json.getInt("numPolylinePoints");
+    polylineLength = json.getFloat("polylineLength");
+  }
+
+  /**
+   * Some crazy reflection required to instantiate inner classes
+   * within the Processing context.
+   * @see http://stackoverflow.com/questions/22495012/strange-error-in-java-reflection-processing
+   * @see https://processing.org/discourse/beta/num_1271880166.html
+   * @see http://www.jroller.com/tomdz/entry/reflection_inner_classes
+   */
+  private LineSegment newInstance(Class<? extends LineSegment> lineSegmentClass) {
+    try {
+      String rootLevelOuterClassFieldName = "this$0";
+      Object app = getClass().getDeclaredField(rootLevelOuterClassFieldName).get(this);
+      Constructor<? extends LineSegment> constructor = lineSegmentClass.getDeclaredConstructor(app.getClass());
+      return constructor.newInstance(app);
+    }
+    catch(InstantiationException e) {
+      println("Instantiation exception " + e.getMessage());
+    }
+    catch(IllegalAccessException e) {
+      println("Illegal access exception " + e.getMessage());
+    }
+    catch(NoSuchFieldException e) {
+      println("No such field exception " + e.getMessage());
+    }
+    catch(NoSuchMethodException e) {
+      println("No such method exception " + e.getMessage());
+    }
+    catch(InvocationTargetException e) {
+      println("Invocation target exception " + e.getMessage());
+    }
+    return null;
   }
 }
 
