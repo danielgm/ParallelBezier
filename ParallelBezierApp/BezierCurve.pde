@@ -3,16 +3,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 class BezierCurve implements IVectorFunction {
-  int POLYLINE_POINTS_PER_CONTROL = 100;
+  private int POLYLINE_POINTS_PER_CONTROL = 100;
 
-  ArrayList<LineSegment> controls;
+  private ArrayList<LineSegment> controls;
 
-  int numPolylinePoints;
-  float polylineLength;
-  float[] polylineTimes;
-  float[] polylineLengths;
-  float[] segmentLengths;
-
+  private int numPolylinePoints;
+  private float polylineLength;
+  private float[] polylineTimes;
+  private float[] polylineLengths;
+  private float[] segmentLengths;
 
   BezierCurve() {
     controls = new ArrayList<LineSegment>();
@@ -94,8 +93,16 @@ class BezierCurve implements IVectorFunction {
   }
 
   void addControl(LineSegment control) {
-    controls.add(control.copy());
+    controls.add(control.clone());
     recalculate();
+  }
+
+  ArrayList<LineSegment> getControls() {
+    return new ArrayList<LineSegment>(controls);
+  }
+
+  void setControls(ArrayList<LineSegment> newControls) {
+      controls = new ArrayList<LineSegment>(newControls);
   }
 
   void drawControls(PGraphics g) {
@@ -228,52 +235,13 @@ class BezierCurve implements IVectorFunction {
   }
 
   void updateFromJSONObject(JSONObject json) {
-    updateFromJSONObject(json, LineSegment.class);
-  }
-
-  void updateFromJSONObject(JSONObject json, Class<? extends LineSegment> lineSegmentClass) {
     controls = new ArrayList<LineSegment>();
     JSONArray jsonControls = json.getJSONArray("controls");
     for (int i = 0; i < jsonControls.size(); i++) {
-      LineSegment segment = newInstance(lineSegmentClass);
+      LineSegment segment = new LineSegment();
       segment.updateFromJSONObject(jsonControls.getJSONObject(i));
       controls.add(segment);
     }
-
-    numPolylinePoints = json.getInt("numPolylinePoints");
-    polylineLength = json.getFloat("polylineLength");
-  }
-
-  /**
-   * Some crazy reflection required to instantiate inner classes
-   * within the Processing context.
-   * @see http://stackoverflow.com/questions/22495012/strange-error-in-java-reflection-processing
-   * @see https://processing.org/discourse/beta/num_1271880166.html
-   * @see http://www.jroller.com/tomdz/entry/reflection_inner_classes
-   */
-  private LineSegment newInstance(Class<? extends LineSegment> lineSegmentClass) {
-    try {
-      String rootLevelOuterClassFieldName = "this$0";
-      Object app = getClass().getDeclaredField(rootLevelOuterClassFieldName).get(this);
-      Constructor<? extends LineSegment> constructor = lineSegmentClass.getDeclaredConstructor(app.getClass());
-      return constructor.newInstance(app);
-    }
-    catch(InstantiationException e) {
-      println("Instantiation exception " + e.getMessage());
-    }
-    catch(IllegalAccessException e) {
-      println("Illegal access exception " + e.getMessage());
-    }
-    catch(NoSuchFieldException e) {
-      println("No such field exception " + e.getMessage());
-    }
-    catch(NoSuchMethodException e) {
-      println("No such method exception " + e.getMessage());
-    }
-    catch(InvocationTargetException e) {
-      println("Invocation target exception " + e.getMessage());
-    }
-    return null;
   }
 }
 

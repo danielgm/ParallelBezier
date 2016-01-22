@@ -3,7 +3,7 @@ import java.util.Iterator;
 
 ArrayList<EditableLineSegment> segments;
 ArrayList<EditableBezierSegment> beziers;
-ArrayList<BezierCurve> curves;
+ArrayList<EditableBezierCurve> curves;
 
 FileNamer fileNamer;
 
@@ -14,7 +14,7 @@ void setup() {
 
   segments = new ArrayList<EditableLineSegment>();
   beziers = new ArrayList<EditableBezierSegment>();
-  curves = new ArrayList<BezierCurve>();
+  curves = new ArrayList<EditableBezierCurve>();
   loadSegments("settings.json");
   //createSegments();
   //createCurves();
@@ -55,18 +55,18 @@ void loadSegments(String path) {
 }
 
 void createCurves() {
-  BezierCurve curve;
+  EditableBezierCurve curve;
 
-  curve = new BezierCurve();
-  curve.addControl(new LineSegment(100, 200, 120, 150));
-  curve.addControl(new LineSegment(300, 130, 350, 120));
-  curve.addControl(new LineSegment(450, 300, 500, 320));
+  curve = new EditableBezierCurve();
+  curve.addControl(new EditableLineSegment(100, 200, 120, 150));
+  curve.addControl(new EditableLineSegment(300, 130, 350, 120));
+  curve.addControl(new EditableLineSegment(450, 300, 500, 320));
   curves.add(curve);
 
-  curve = new BezierCurve();
-  curve.addControl(new LineSegment(100, 400, 120, 350));
-  curve.addControl(new LineSegment(300, 330, 350, 320));
-  curve.addControl(new LineSegment(450, 500, 500, 520));
+  curve = new EditableBezierCurve();
+  curve.addControl(new EditableLineSegment(100, 400, 120, 350));
+  curve.addControl(new EditableLineSegment(300, 330, 350, 320));
+  curve.addControl(new EditableLineSegment(450, 500, 500, 520));
   curves.add(curve);
 }
 
@@ -109,9 +109,9 @@ void drawBeziers(PGraphics g) {
 }
 
 void drawCurves(PGraphics g) {
-  Iterator<BezierCurve> iter = curves.iterator();
+  Iterator<EditableBezierCurve> iter = curves.iterator();
   while (iter.hasNext()) {
-    BezierCurve curve = iter.next();
+    EditableBezierCurve curve = iter.next();
     curve.draw(g);
   }
 }
@@ -160,8 +160,13 @@ void mouseReleased() {
 }
 
 private void updateFromJSONObject(JSONObject json) {
+  segments = new ArrayList<EditableLineSegment>();
+  beziers = new ArrayList<EditableBezierSegment>();
+  curves = new ArrayList<EditableBezierCurve>();
+
   JSONArray jsonBeziers = json.getJSONArray("beziers");
   updateBeziersFromJSONArray(jsonBeziers);
+
   JSONArray jsonCurves = json.getJSONArray("curves");
   updateCurvesFromJSONArray(jsonCurves);
 }
@@ -181,11 +186,21 @@ private void updateBeziersFromJSONArray(JSONArray jsonBeziers) {
 
 private void updateCurvesFromJSONArray(JSONArray jsonCurves) {
   for (int i = 0; i < jsonCurves.size(); i++) {
-    JSONObject jsonBezier = jsonCurves.getJSONObject(i);
+    JSONObject jsonCurve = jsonCurves.getJSONObject(i);
 
-    BezierCurve bezier = new BezierCurve();
-    bezier.updateFromJSONObject(jsonBezier, EditableLineSegment.class);
-    curves.add(bezier);
+    EditableBezierCurve curve = new EditableBezierCurve();
+    curve.updateFromJSONObject(jsonCurve);
+    curves.add(curve);
+
+    addControls(curve);
+  }
+}
+
+private void addControls(EditableBezierCurve curve) {
+  ArrayList<EditableLineSegment> curveControls = curve.getControls();
+  Iterator<EditableLineSegment> iter = curveControls.iterator();
+  while (iter.hasNext()) {
+    segments.add(iter.next());
   }
 }
 

@@ -51,7 +51,7 @@ class LineSegment implements IVectorFunction {
     return PVector.add(p0, PVector.mult(PVector.sub(p1, p0), t));
   }
 
-  LineSegment copy() {
+  LineSegment clone() {
     return new LineSegment(p0, p1);
   }
 

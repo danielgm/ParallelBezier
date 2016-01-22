@@ -63,7 +63,7 @@ class EditableLineSegment extends LineSegment {
     }
   }
 
-  EditableLineSegment copy() {
+  EditableLineSegment clone() {
     return new EditableLineSegment(exposedP0, exposedP1);
   }
 
@@ -99,5 +99,13 @@ class EditableLineSegment extends LineSegment {
 
   private void drawHandle(PGraphics g, PVector p) {
     g.ellipse(p.x, p.y, 2*handleRadius, 2*handleRadius);
+  }
+
+  void updateFromJSONObject(JSONObject json) {
+    super.updateFromJSONObject(json);
+    exposedP0.x = json.getJSONObject("p0").getFloat("x");
+    exposedP0.y = json.getJSONObject("p0").getFloat("y");
+    exposedP1.x = json.getJSONObject("p1").getFloat("x");
+    exposedP1.y = json.getJSONObject("p1").getFloat("y");
   }
 }
