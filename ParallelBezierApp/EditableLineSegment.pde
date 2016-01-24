@@ -49,8 +49,10 @@ class EditableLineSegment extends LineSegment {
     return isEditMode;
   }
 
-  void isEditMode(boolean v) {
+  EditableLineSegment isEditMode(boolean v) {
     isEditMode = v;
+
+    return this;
   }
 
   void draw(PGraphics g) {
@@ -68,23 +70,27 @@ class EditableLineSegment extends LineSegment {
   }
 
   void mousePressed() {
-    PVector mouse = new PVector(mouseX, mouseY);
-    if (hitTest(exposedP0, mouse)) {
-      isDragging0 = true;
-    }
-    if (hitTest(exposedP1, mouse)) {
-      isDragging1 = true;
+    if (isEditMode) {
+      PVector mouse = new PVector(mouseX, mouseY);
+      if (hitTest(exposedP0, mouse)) {
+        isDragging0 = true;
+      }
+      if (hitTest(exposedP1, mouse)) {
+        isDragging1 = true;
+      }
     }
   }
 
   void mouseDragged() {
-    if (isDragging0) {
-      exposedP0.x = mouseX;
-      exposedP0.y = mouseY;
-    }
-    if (isDragging1) {
-      exposedP1.x = mouseX;
-      exposedP1.y = mouseY;
+    if (isEditMode) {
+      if (isDragging0) {
+        exposedP0.x = mouseX;
+        exposedP0.y = mouseY;
+      }
+      if (isDragging1) {
+        exposedP1.x = mouseX;
+        exposedP1.y = mouseY;
+      }
     }
   }
 
