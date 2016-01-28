@@ -4,10 +4,15 @@ import java.util.Iterator;
 class Drawing {
   ArrayList<ParallelBezierSet> bezierSets;
   private boolean isEditMode;
+  private int editingIndex;
+
+  final static color editingColor = 0xffff0000;
+  final static color normalColor = 0xff333333;
 
   void setup() {
     bezierSets = new ArrayList<ParallelBezierSet>();
 
+    editingIndex(0);
     isEditMode(true);
   }
 
@@ -18,7 +23,6 @@ class Drawing {
 
   void draw(PGraphics g) {
     g.background(255);
-    g.stroke(0);
     g.strokeWeight(2);
     g.noFill();
 
@@ -26,11 +30,15 @@ class Drawing {
   }
 
   private void drawBezierSets() {
-    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
-    while (iter.hasNext()) {
-      ParallelBezierSet bezierSet = iter.next();
+    for (int i = 0; i < bezierSets.size(); i++) {
+      ParallelBezierSet bezierSet = bezierSets.get(i);
+      g.stroke(getStrokeColor(bezierSet));
       bezierSet.draw(g);
     }
+  }
+
+  private color getStrokeColor(ParallelBezierSet bezierSet) {
+    return bezierSet.isEditMode() ? editingColor : normalColor;
   }
 
   boolean isEditMode() {
@@ -39,14 +47,42 @@ class Drawing {
 
   Drawing isEditMode(boolean v) {
     isEditMode = v;
-
-    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
-    while (iter.hasNext()) {
-      ParallelBezierSet bezierSet = iter.next();
-      bezierSet.isEditMode(v);
-    }
-
+    editingIndexChanged();
     return this;
+  }
+
+  int editingIndex() {
+    return editingIndex;
+  }
+
+  Drawing editingIndex(int v) {
+    editingIndex = v;
+    editingIndexChanged();
+    return this;
+  }
+
+  Drawing prevEditingIndex() {
+    editingIndex--;
+    if (editingIndex < 0) {
+      editingIndex = bezierSets.size() - 1;
+    }
+    editingIndexChanged();
+    return this;
+  }
+
+  Drawing nextEditingIndex() {
+    editingIndex++;
+    if (editingIndex >= bezierSets.size()) {
+      editingIndex = 0;
+    }
+    editingIndexChanged();
+    return this;
+  }
+
+  private void editingIndexChanged() {
+    for (int i = 0; i < bezierSets.size(); i++) {
+      bezierSets.get(i).isEditMode(isEditMode && i == editingIndex);
+    }
   }
 
   void mousePressed() {

@@ -33,6 +33,12 @@ void keyReleased() {
     case 's':
       saveJSONObject(drawing.toJSONObject(), "settings.json");
       break;
+    case 'd':
+      drawing.prevEditingIndex();
+      break;
+    case 'f':
+      drawing.nextEditingIndex();
+      break;
   }
 }
 

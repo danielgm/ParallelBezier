@@ -14,9 +14,8 @@ class ParallelBezierSet {
     bezier1 = new EditableBezierCurve();
 
     // FIXME: User configurable.
-    numBeziers = 20;
-
-    isEditMode(true);
+    numBeziers = 40;
+    isEditMode = false;
   }
 
   void load(String path) {
@@ -28,12 +27,8 @@ class ParallelBezierSet {
     drawInterpolatedBeziers(g);
 
     if (isEditMode) {
-      g.pushStyle();
-      g.stroke(0);
-      g.strokeWeight(2);
       drawBeziers(g);
       drawControls(g);
-      g.popStyle();
     }
   }
 
