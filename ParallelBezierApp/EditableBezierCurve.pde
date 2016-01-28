@@ -26,7 +26,7 @@ class EditableBezierCurve {
       EditableLineSegment segment = iter.next();
       controls.add(segment);
     }
-    curve.setControls(controls);
+    curve.controls(controls);
   }
 
   void addControl(EditableLineSegment control) {
@@ -34,12 +34,13 @@ class EditableBezierCurve {
     curve.addControl(control);
   }
 
-  ArrayList<EditableLineSegment> getControls() {
+  ArrayList<EditableLineSegment> controls() {
     return new ArrayList<EditableLineSegment>(exposedControls);
   }
 
-  void setControls(ArrayList<EditableLineSegment> newControls) {
+  EditableBezierCurve controls(ArrayList<EditableLineSegment> newControls) {
       exposedControls = new ArrayList<EditableLineSegment>(newControls);
+      return this;
   }
 
   JSONObject toJSONObject() {

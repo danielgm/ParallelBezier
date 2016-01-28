@@ -55,6 +55,12 @@ class LineSegment implements IVectorFunction {
     return new LineSegment(p0, p1);
   }
 
+  LineSegment lerp(LineSegment segment, float t) {
+    return new LineSegment(
+        PVector.lerp(p0, segment.p0, t),
+        PVector.lerp(p1, segment.p1, t));
+  }
+
   JSONObject toJSONObject() {
     JSONObject json = new JSONObject();
     json.setJSONObject("p0", toJSONObject(p0));

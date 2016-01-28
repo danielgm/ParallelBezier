@@ -97,12 +97,13 @@ class BezierCurve implements IVectorFunction {
     recalculate();
   }
 
-  ArrayList<LineSegment> getControls() {
+  ArrayList<LineSegment> controls() {
     return new ArrayList<LineSegment>(controls);
   }
 
-  void setControls(ArrayList<LineSegment> newControls) {
+  BezierCurve controls(ArrayList<LineSegment> newControls) {
       controls = new ArrayList<LineSegment>(newControls);
+      return this;
   }
 
   void drawControls(PGraphics g) {
