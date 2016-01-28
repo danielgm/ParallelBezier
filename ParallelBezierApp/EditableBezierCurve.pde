@@ -7,6 +7,7 @@ class EditableBezierCurve {
   private ArrayList<EditableLineSegment> exposedControls;
 
   EditableBezierCurve() {
+    exposedControls = new ArrayList<EditableLineSegment>();
   }
 
   void draw(PGraphics g) {

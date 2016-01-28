@@ -3,13 +3,15 @@ import java.util.Iterator;
 
 class ParallelBezierSet {
   private ArrayList<EditableLineSegment> controls;
-  private ArrayList<EditableBezierCurve> curves;
+  private EditableBezierCurve bezier0;
+  private EditableBezierCurve bezier1;
   private int numBeziers;
   private boolean isEditMode;
 
   ParallelBezierSet() {
     controls = new ArrayList<EditableLineSegment>();
-    curves = new ArrayList<EditableBezierCurve>();
+    bezier0 = new EditableBezierCurve();
+    bezier1 = new EditableBezierCurve();
 
     // FIXME: User configurable.
     numBeziers = 20;
@@ -23,21 +25,21 @@ class ParallelBezierSet {
   }
 
   void draw(PGraphics g) {
-    drawInterpolatedCurves(g);
+    drawInterpolatedBeziers(g);
 
     if (isEditMode) {
       g.pushStyle();
       g.stroke(0);
       g.strokeWeight(2);
-      drawCurves(g);
+      drawBeziers(g);
       drawControls(g);
       g.popStyle();
     }
   }
 
-  void drawInterpolatedCurves(PGraphics g) {
-    ArrayList<EditableLineSegment> controls0 = curves.get(0).controls();
-    ArrayList<EditableLineSegment> controls1 = curves.get(1).controls();
+  void drawInterpolatedBeziers(PGraphics g) {
+    ArrayList<EditableLineSegment> controls0 = bezier0.controls();
+    ArrayList<EditableLineSegment> controls1 = bezier1.controls();
 
     int size = min(controls0.size(), controls1.size());
     for (int i = 0; i < size - 1; i++) {
@@ -65,12 +67,9 @@ class ParallelBezierSet {
     }
   }
 
-  void drawCurves(PGraphics g) {
-    Iterator<EditableBezierCurve> iter = curves.iterator();
-    while (iter.hasNext()) {
-      EditableBezierCurve curve = iter.next();
-      curve.draw(g);
-    }
+  void drawBeziers(PGraphics g) {
+    bezier0.draw(g);
+    bezier1.draw(g);
   }
 
   void drawControls(PGraphics g) {
@@ -123,27 +122,19 @@ class ParallelBezierSet {
 
   private void updateFromJSONObject(JSONObject json) {
     controls = new ArrayList<EditableLineSegment>();
-    curves = new ArrayList<EditableBezierCurve>();
 
-    JSONArray jsonCurves = json.getJSONArray("curves");
-    updateCurvesFromJSONArray(jsonCurves);
+    bezier0 = new EditableBezierCurve();
+    bezier0.updateFromJSONObject(json.getJSONObject("bezier0"));
+    addControls(bezier0);
+
+    bezier1 = new EditableBezierCurve();
+    bezier1.updateFromJSONObject(json.getJSONObject("bezier1"));
+    addControls(bezier1);
   }
 
-  private void updateCurvesFromJSONArray(JSONArray jsonCurves) {
-    for (int i = 0; i < jsonCurves.size(); i++) {
-      JSONObject jsonCurve = jsonCurves.getJSONObject(i);
-
-      EditableBezierCurve curve = new EditableBezierCurve();
-      curve.updateFromJSONObject(jsonCurve);
-      curves.add(curve);
-
-      addControls(curve);
-    }
-  }
-
-  private void addControls(EditableBezierCurve curve) {
-    ArrayList<EditableLineSegment> curveControls = curve.controls();
-    Iterator<EditableLineSegment> iter = curveControls.iterator();
+  private void addControls(EditableBezierCurve bezier) {
+    ArrayList<EditableLineSegment> bezierControls = bezier.controls();
+    Iterator<EditableLineSegment> iter = bezierControls.iterator();
     while (iter.hasNext()) {
       EditableLineSegment control = iter.next();
       control.isEditMode = isEditMode;
@@ -153,16 +144,9 @@ class ParallelBezierSet {
 
   private JSONObject toJSONObject() {
     JSONObject json = new JSONObject();
-    json.setJSONArray("curves", curvesToJSONObject());
+    json.setJSONObject("bezier0", bezier0.toJSONObject());
+    json.setJSONObject("bezier1", bezier1.toJSONObject());
     return json;
-  }
-
-  private JSONArray curvesToJSONObject() {
-    JSONArray jsonCurves = new JSONArray();
-    for (int i = 0; i < curves.size(); i++) {
-      jsonCurves.setJSONObject(i, curves.get(i).toJSONObject());
-    }
-    return jsonCurves;
   }
 }
 
