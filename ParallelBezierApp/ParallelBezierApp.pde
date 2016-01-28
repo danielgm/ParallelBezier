@@ -1,20 +1,14 @@
 
 import java.util.Iterator;
 
-ParallelBeziers parallelBeziers;
+Drawing drawing;
 FileNamer fileNamer;
-
-color strokeColor, backgroundColor0, backgroundColor1;
 
 void setup() {
   size(640, 640, P2D);
 
-  parallelBeziers = new ParallelBeziers();
-  parallelBeziers.load("settings.json");
-
-  strokeColor = 0xff030303;
-  backgroundColor0 = 0xff69d3ce;
-  backgroundColor1 = 0xff887abf;
+  drawing = new Drawing();
+  drawing.load("settings.json");
 
   fileNamer = new FileNamer("output/export", "png");
 }
@@ -25,32 +19,31 @@ void draw() {
   g.strokeWeight(2);
   g.noFill();
 
-  parallelBeziers.draw(g);
+  drawing.draw(g);
 }
 
 void keyReleased() {
   switch (key) {
     case 'e':
-      parallelBeziers.isEditMode(!parallelBeziers.isEditMode());
+      drawing.isEditMode(!drawing.isEditMode());
       break;
     case 'r':
       save(fileNamer.next());
       break;
     case 's':
-      saveJSONObject(parallelBeziers.toJSONObject(), "settings.json");
+      saveJSONObject(drawing.toJSONObject(), "settings.json");
       break;
   }
 }
 
 void mousePressed() {
-  parallelBeziers.mousePressed();
+  drawing.mousePressed();
 }
 
 void mouseDragged() {
-  parallelBeziers.mouseDragged();
+  drawing.mouseDragged();
 }
 
 void mouseReleased() {
-  parallelBeziers.mouseReleased();
+  drawing.mouseReleased();
 }
-

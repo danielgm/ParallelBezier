@@ -1,14 +1,18 @@
 
 import java.util.Iterator;
 
-class ParallelBeziers {
+class ParallelBezierSet {
   private ArrayList<EditableLineSegment> controls;
   private ArrayList<EditableBezierCurve> curves;
+  private int numBeziers;
   private boolean isEditMode;
 
-  ParallelBeziers() {
+  ParallelBezierSet() {
     controls = new ArrayList<EditableLineSegment>();
     curves = new ArrayList<EditableBezierCurve>();
+
+    // FIXME: User configurable.
+    numBeziers = 20;
 
     isEditMode(true);
   }
@@ -19,14 +23,46 @@ class ParallelBeziers {
   }
 
   void draw(PGraphics g) {
-    g.beginDraw();
-    g.pushStyle();
+    drawInterpolatedCurves(g);
 
-    drawCurves(g);
-    drawControls(g);
+    if (isEditMode) {
+      g.pushStyle();
+      g.stroke(0);
+      g.strokeWeight(2);
+      drawCurves(g);
+      drawControls(g);
+      g.popStyle();
+    }
+  }
 
-    g.popStyle();
-    g.endDraw();
+  void drawInterpolatedCurves(PGraphics g) {
+    ArrayList<EditableLineSegment> controls0 = curves.get(0).controls();
+    ArrayList<EditableLineSegment> controls1 = curves.get(1).controls();
+
+    int size = min(controls0.size(), controls1.size());
+    for (int i = 0; i < size - 1; i++) {
+      LineSegment currControl0 = controls0.get(i);
+      LineSegment nextControl0 = controls0.get(i + 1);
+      LineSegment currControl1 = controls1.get(i);
+      LineSegment nextControl1 = controls1.get(i + 1);
+
+      for (int n = 0; n < numBeziers; n++) {
+        float t = (float)n / numBeziers;
+        LineSegment currLerped = currControl0.lerp(currControl1, t);
+        LineSegment nextLerped = nextControl0.lerp(nextControl1, t);
+
+        if (i == 0) {
+          g.bezier(
+            currLerped.p0.x, currLerped.p0.y, currLerped.p1.x, currLerped.p1.y,
+            nextLerped.p0.x, nextLerped.p0.y, nextLerped.p1.x, nextLerped.p1.y);
+        }
+        else {
+          g.bezier(
+            currLerped.p1.x, currLerped.p1.y, 2 * currLerped.p1.x - currLerped.p0.x, 2 * currLerped.p1.y - currLerped.p0.y,
+            nextLerped.p0.x, nextLerped.p0.y, nextLerped.p1.x, nextLerped.p1.y);
+        }
+      }
+    }
   }
 
   void drawCurves(PGraphics g) {
@@ -49,7 +85,7 @@ class ParallelBeziers {
     return isEditMode;
   }
 
-  ParallelBeziers isEditMode(boolean v) {
+  ParallelBezierSet isEditMode(boolean v) {
     isEditMode = v;
 
     Iterator<EditableLineSegment> iter = controls.iterator();
@@ -106,7 +142,7 @@ class ParallelBeziers {
   }
 
   private void addControls(EditableBezierCurve curve) {
-    ArrayList<EditableLineSegment> curveControls = curve.getControls();
+    ArrayList<EditableLineSegment> curveControls = curve.controls();
     Iterator<EditableLineSegment> iter = curveControls.iterator();
     while (iter.hasNext()) {
       EditableLineSegment control = iter.next();
