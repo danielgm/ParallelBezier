@@ -2,14 +2,11 @@
 import java.util.Iterator;
 
 class Drawing {
-  ParallelBezierSet bezierSet;
+  ArrayList<ParallelBezierSet> bezierSets;
   private boolean isEditMode;
 
   void setup() {
-    bezierSet = new ParallelBezierSet();
-    bezierSet.load("settings.json");
-
-    fileNamer = new FileNamer("output/export", "png");
+    bezierSets = new ArrayList<ParallelBezierSet>();
 
     isEditMode(true);
   }
@@ -25,7 +22,15 @@ class Drawing {
     g.strokeWeight(2);
     g.noFill();
 
-    bezierSet.draw(g);
+    drawBezierSets();
+  }
+
+  private void drawBezierSets() {
+    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
+    while (iter.hasNext()) {
+      ParallelBezierSet bezierSet = iter.next();
+      bezierSet.draw(g);
+    }
   }
 
   boolean isEditMode() {
@@ -35,30 +40,61 @@ class Drawing {
   Drawing isEditMode(boolean v) {
     isEditMode = v;
 
-    bezierSet.isEditMode(v);
+    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
+    while (iter.hasNext()) {
+      ParallelBezierSet bezierSet = iter.next();
+      bezierSet.isEditMode(v);
+    }
 
     return this;
   }
 
   void mousePressed() {
-    bezierSet.mousePressed();
+    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
+    while (iter.hasNext()) {
+      ParallelBezierSet bezierSet = iter.next();
+      bezierSet.mousePressed();
+    }
   }
 
   void mouseDragged() {
-    bezierSet.mouseDragged();
+    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
+    while (iter.hasNext()) {
+      ParallelBezierSet bezierSet = iter.next();
+      bezierSet.mouseDragged();
+    }
   }
 
   void mouseReleased() {
-    bezierSet.mouseReleased();
+    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
+    while (iter.hasNext()) {
+      ParallelBezierSet bezierSet = iter.next();
+      bezierSet.mouseReleased();
+    }
   }
 
   private void updateFromJSONObject(JSONObject json) {
-    bezierSet = new ParallelBezierSet();
-    bezierSet.updateFromJSONObject(json);
+    JSONArray jsonBezierSets = json.getJSONArray("bezierSets");
+    bezierSets = new ArrayList<ParallelBezierSet>();
+    for (int i = 0; i < jsonBezierSets.size(); i++) {
+      ParallelBezierSet bezierSet = new ParallelBezierSet();
+      bezierSet.updateFromJSONObject(jsonBezierSets.getJSONObject(i));
+
+      bezierSets.add(bezierSet);
+    }
   }
 
   private JSONObject toJSONObject() {
-    JSONObject json = bezierSet.toJSONObject();
+    JSONObject json = new JSONObject();
+    json.setJSONArray("bezierSets", bezierSetsToJSONArray());
     return json;
+  }
+
+  private JSONArray bezierSetsToJSONArray() {
+    JSONArray jsonBezierSets = new JSONArray();
+    for (int i = 0; i < bezierSets.size(); i++) {
+      jsonBezierSets.setJSONObject(i, bezierSets.get(i).toJSONObject());
+    }
+    return jsonBezierSets;
   }
 }
