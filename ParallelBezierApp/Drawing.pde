@@ -22,14 +22,10 @@ class Drawing {
   }
 
   void draw(PGraphics g) {
-    g.background(255);
-    g.strokeWeight(2);
-    g.noFill();
-
-    drawBezierSets();
+    drawBezierSets(g);
   }
 
-  private void drawBezierSets() {
+  private void drawBezierSets(PGraphics g) {
     for (int i = 0; i < bezierSets.size(); i++) {
       ParallelBezierSet bezierSet = bezierSets.get(i);
       g.stroke(getStrokeColor(bezierSet));
