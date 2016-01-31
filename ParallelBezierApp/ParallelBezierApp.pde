@@ -23,19 +23,39 @@ void setup() {
 }
 
 void draw() {
-  g.background(196);
+  draw(g, true);
+}
 
-  g.noStroke();
-  g.fill(255);
-  g.rect(drawingOffsetX, drawingOffsetY, drawingWidth, drawingHeight);
+void draw(PGraphics g) {
+  draw(g, false);
+}
 
-  g.stroke(0);
+void draw(PGraphics g, boolean workarea) {
+  if (workarea) {
+    g.background(196);
+
+    g.noStroke();
+    g.fill(0);
+    g.rect(drawingOffsetX, drawingOffsetY, drawingWidth, drawingHeight);
+  }
+  else {
+    g.background(0);
+  }
+
+  g.pushMatrix();
+  g.pushStyle();
+
+  g.stroke(255);
   g.strokeWeight(2);
   g.noFill();
 
-  g.pushMatrix();
-  g.translate(drawingOffsetX, drawingOffsetY);
+  if (workarea) {
+    g.translate(drawingOffsetX, drawingOffsetY);
+  }
+
   drawing.draw(g);
+
+  g.popStyle();
   g.popMatrix();
 }
 
@@ -83,8 +103,7 @@ void mouseReleased() {
 void render(String path) {
   PGraphics render = createGraphics(drawingWidth, drawingHeight, P3D);
   render.beginDraw();
-  render.background(255);
-  drawing.draw(render);
+  draw(render);
   render.endDraw();
   render.save(path);
 }

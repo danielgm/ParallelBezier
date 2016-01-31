@@ -14,7 +14,7 @@ class ParallelBezierSet {
     bezier1 = new EditableBezierCurve();
 
     // FIXME: User configurable.
-    numBeziers = 40;
+    numBeziers = 150;
     isEditMode = false;
   }
 
