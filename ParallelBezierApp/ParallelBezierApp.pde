@@ -3,6 +3,8 @@ import java.util.Iterator;
 
 int drawingWidth;
 int drawingHeight;
+int drawingOffsetX;
+int drawingOffsetY;
 Drawing drawing;
 FileNamer fileNamer;
 
@@ -11,6 +13,8 @@ void setup() {
 
   drawingWidth = 640;
   drawingHeight = 640;
+  drawingOffsetX = floor((width - drawingWidth) / 2);
+  drawingOffsetY = floor((height - drawingHeight) / 2);
 
   drawing = new Drawing();
   drawing.load("settings.json");
@@ -23,14 +27,14 @@ void draw() {
 
   g.noStroke();
   g.fill(255);
-  g.rect((width - drawingWidth) / 2, (height - drawingHeight) / 2, drawingWidth, drawingHeight);
+  g.rect(drawingOffsetX, drawingOffsetY, drawingWidth, drawingHeight);
 
   g.stroke(0);
   g.strokeWeight(2);
   g.noFill();
 
   g.pushMatrix();
-  g.translate((width - drawingWidth) / 2, (height - drawingHeight) / 2);
+  g.translate(drawingOffsetX, drawingOffsetY);
   drawing.draw(g);
   g.popMatrix();
 }
@@ -56,14 +60,23 @@ void keyReleased() {
 }
 
 void mousePressed() {
+  mouseX -= drawingOffsetX;
+  mouseY -= drawingOffsetY;
+
   drawing.mousePressed();
 }
 
 void mouseDragged() {
+  mouseX -= drawingOffsetX;
+  mouseY -= drawingOffsetY;
+
   drawing.mouseDragged();
 }
 
 void mouseReleased() {
+  mouseX -= drawingOffsetX;
+  mouseY -= drawingOffsetY;
+
   drawing.mouseReleased();
 }
 
