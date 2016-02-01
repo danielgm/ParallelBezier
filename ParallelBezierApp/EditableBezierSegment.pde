@@ -56,8 +56,11 @@ class EditableBezierSegment extends BezierSegment {
   }
 
   void draw(PGraphics g) {
-    super.set(exposedP0, exposedC0, exposedC1, exposedP1);
     super.draw(g);
+  }
+
+  void positionChanged() {
+    super.set(exposedP0, exposedC0, exposedC1, exposedP1);
   }
 
   void updateFromJSONObject(JSONObject json) {

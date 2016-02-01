@@ -5,6 +5,13 @@ class Drawing {
   ArrayList<ParallelBezierSet> bezierSets;
   private boolean isEditMode;
   private int editingIndex;
+  private int width;
+  private int height;
+
+  Drawing(int w, int h) {
+    width = w;
+    height = h;
+  }
 
   void setup() {
     bezierSets = new ArrayList<ParallelBezierSet>();
@@ -77,6 +84,25 @@ class Drawing {
     if (isEditMode) {
       ParallelBezierSet bezierSet = bezierSets.get(editingIndex);
       bezierSet.nudge(x, y);
+    }
+  }
+
+  void randomize() {
+    Iterator<ParallelBezierSet> iter = bezierSets.iterator();
+    while (iter.hasNext()) {
+      ParallelBezierSet bezierSet = iter.next();
+      randomize(bezierSet);
+    }
+  }
+
+  private void randomize(ParallelBezierSet bezierSet) {
+    ArrayList<EditableLineSegment> controls = bezierSet.controls();
+    Iterator<EditableLineSegment> iter = controls.iterator();
+    while (iter.hasNext()) {
+      EditableLineSegment control = iter.next();
+      control.getP0().set(random(width), random(height));
+      control.getP1().set(random(width), random(height));
+      control.positionChanged();
     }
   }
 

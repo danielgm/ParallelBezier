@@ -16,7 +16,7 @@ void setup() {
   drawingOffsetX = floor((width - drawingWidth) / 2);
   drawingOffsetY = floor((height - drawingHeight) / 2);
 
-  drawing = new Drawing();
+  drawing = new Drawing(drawingWidth, drawingHeight);
   drawing.load("settings.json");
 
   fileNamer = new FileNamer("output/export", "png");
@@ -75,6 +75,9 @@ void keyReleased() {
       break;
     case 'f':
       drawing.nextEditingIndex();
+      break;
+    case 'x':
+      drawing.randomize();
       break;
   }
   switch (keyCode) {

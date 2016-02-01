@@ -56,13 +56,16 @@ class EditableLineSegment extends LineSegment {
   }
 
   void draw(PGraphics g) {
-    super.set(exposedP0, exposedP1);
     super.draw(g);
 
     if (isEditMode) {
       drawHandle(g, getP0());
       drawHandle(g, getP1());
     }
+  }
+
+  void positionChanged() {
+    super.set(exposedP0, exposedP1);
   }
 
   void nudge(float x, float y) {
@@ -93,10 +96,12 @@ class EditableLineSegment extends LineSegment {
       if (isDragging0) {
         exposedP0.x = mouseX;
         exposedP0.y = mouseY;
+        positionChanged();
       }
       if (isDragging1) {
         exposedP1.x = mouseX;
         exposedP1.y = mouseY;
+        positionChanged();
       }
     }
   }
