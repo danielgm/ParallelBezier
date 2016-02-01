@@ -65,6 +65,13 @@ class EditableLineSegment extends LineSegment {
     }
   }
 
+  void nudge(float x, float y) {
+    exposedP0.x += x;
+    exposedP0.y += y;
+    exposedP1.x += x;
+    exposedP1.y += y;
+  }
+
   EditableLineSegment clone() {
     return new EditableLineSegment(exposedP0, exposedP1);
   }

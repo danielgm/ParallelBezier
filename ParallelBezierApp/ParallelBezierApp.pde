@@ -45,9 +45,9 @@ void draw(PGraphics g, boolean workarea) {
   g.pushMatrix();
   g.pushStyle();
 
-  g.stroke(255);
-  g.strokeWeight(2);
+  g.strokeWeight(4);
   g.noFill();
+  g.blendMode(ADD);
 
   if (workarea) {
     g.translate(drawingOffsetX, drawingOffsetY);
@@ -75,6 +75,20 @@ void keyReleased() {
       break;
     case 'f':
       drawing.nextEditingIndex();
+      break;
+  }
+  switch (keyCode) {
+    case UP:
+      drawing.nudge(0, -0.5);
+      break;
+    case DOWN:
+      drawing.nudge(0, 0.5);
+      break;
+    case LEFT:
+      drawing.nudge(-0.5, 0);
+      break;
+    case RIGHT:
+      drawing.nudge(0.5, 0);
       break;
   }
 }

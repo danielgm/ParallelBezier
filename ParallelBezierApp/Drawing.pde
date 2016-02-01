@@ -6,8 +6,6 @@ class Drawing {
   private boolean isEditMode;
   private int editingIndex;
 
-  final static color editingColor = 0xffff0000;
-
   void setup() {
     bezierSets = new ArrayList<ParallelBezierSet>();
 
@@ -27,16 +25,7 @@ class Drawing {
   private void drawBezierSets(PGraphics g) {
     for (int i = 0; i < bezierSets.size(); i++) {
       ParallelBezierSet bezierSet = bezierSets.get(i);
-      if (bezierSet.isEditMode()) {
-        g.pushStyle();
-        g.stroke(editingColor);
-      }
-
       bezierSet.draw(g);
-
-      if (bezierSet.isEditMode()) {
-        g.popStyle();
-      }
     }
   }
 
@@ -81,6 +70,13 @@ class Drawing {
   private void editingIndexChanged() {
     for (int i = 0; i < bezierSets.size(); i++) {
       bezierSets.get(i).isEditMode(isEditMode && i == editingIndex);
+    }
+  }
+
+  void nudge(float x, float y) {
+    if (isEditMode) {
+      ParallelBezierSet bezierSet = bezierSets.get(editingIndex);
+      bezierSet.nudge(x, y);
     }
   }
 

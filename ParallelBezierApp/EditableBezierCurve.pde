@@ -44,6 +44,14 @@ class EditableBezierCurve {
       return this;
   }
 
+  void nudge(float x, float y) {
+    Iterator<EditableLineSegment> iter = exposedControls.iterator();
+    while (iter.hasNext()) {
+      EditableLineSegment control = iter.next();
+      control.nudge(x, y);
+    }
+  }
+
   JSONObject toJSONObject() {
     return curve.toJSONObject();
   }

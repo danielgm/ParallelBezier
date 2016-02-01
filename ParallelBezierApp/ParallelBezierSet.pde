@@ -7,6 +7,9 @@ class ParallelBezierSet {
   private EditableBezierCurve bezier1;
   private int numBeziers;
   private boolean isEditMode;
+  private color strokeColor;
+
+  final static color editingColor = 0xffff0000;
 
   ParallelBezierSet() {
     controls = new ArrayList<EditableLineSegment>();
@@ -14,8 +17,9 @@ class ParallelBezierSet {
     bezier1 = new EditableBezierCurve();
 
     // FIXME: User configurable.
-    numBeziers = 150;
+    numBeziers = 80;
     isEditMode = false;
+    strokeColor = color(0);
   }
 
   void load(String path) {
@@ -24,12 +28,22 @@ class ParallelBezierSet {
   }
 
   void draw(PGraphics g) {
+    g.pushStyle();
+    if (isEditMode()) {
+      g.stroke(editingColor);
+    }
+    else {
+      g.stroke(strokeColor);
+    }
+
     drawInterpolatedBeziers(g);
 
     if (isEditMode) {
       drawBeziers(g);
       drawControls(g);
     }
+
+    g.popStyle();
   }
 
   void drawInterpolatedBeziers(PGraphics g) {
@@ -91,6 +105,21 @@ class ParallelBezierSet {
     return this;
   }
 
+  ArrayList<EditableLineSegment> controls() {
+    return new ArrayList<EditableLineSegment>(controls);
+  }
+
+  void nudge(float x, float y) {
+    Iterator<EditableLineSegment> iter = controls.iterator();
+    while (iter.hasNext()) {
+      EditableLineSegment segment = iter.next();
+      segment.nudge(x, y);
+    }
+
+    bezier0.nudge(x, y);
+    bezier1.nudge(x, y);
+  }
+
   void mousePressed() {
     Iterator<EditableLineSegment> iter = controls.iterator();
     while (iter.hasNext()) {
@@ -118,6 +147,8 @@ class ParallelBezierSet {
   private void updateFromJSONObject(JSONObject json) {
     controls = new ArrayList<EditableLineSegment>();
 
+    strokeColor = color(unhex("FF" + json.getString("stroke").substring(1)));
+
     bezier0 = new EditableBezierCurve();
     bezier0.updateFromJSONObject(json.getJSONObject("bezier0"));
     addControls(bezier0);
@@ -139,6 +170,7 @@ class ParallelBezierSet {
 
   private JSONObject toJSONObject() {
     JSONObject json = new JSONObject();
+    json.setString("stroke", "#" + hex(strokeColor, 6));
     json.setJSONObject("bezier0", bezier0.toJSONObject());
     json.setJSONObject("bezier1", bezier1.toJSONObject());
     return json;
