@@ -8,11 +8,17 @@ int drawingOffsetY;
 Drawing drawing;
 FileNamer fileNamer;
 
+float backgroundScale;
+PImage background;
+
 void setup() {
   size(1440, 820, P2D);
+  
+  backgroundScale = 0.3;
+  background = loadImage("background.jpg");
 
-  drawingWidth = 640;
-  drawingHeight = 640;
+  drawingWidth = floor(background.width * backgroundScale);
+  drawingHeight = floor(background.height * backgroundScale);
   drawingOffsetX = floor((width - drawingWidth) / 2);
   drawingOffsetY = floor((height - drawingHeight) / 2);
 
@@ -33,21 +39,26 @@ void draw(PGraphics g) {
 void draw(PGraphics g, boolean workarea) {
   if (workarea) {
     g.background(196);
-
+    
     g.noStroke();
     g.fill(0);
     g.rect(drawingOffsetX, drawingOffsetY, drawingWidth, drawingHeight);
+    
+    g.image(background, drawingOffsetX, drawingOffsetY, drawingWidth, drawingHeight);
   }
   else {
     g.background(0);
+    g.image(background, 0, 0, drawingWidth, drawingHeight);
   }
-
+  
   g.pushMatrix();
   g.pushStyle();
-
-  g.strokeWeight(4);
+  
+  g.bezierDetail(200);
+  
+  g.strokeWeight(1);
   g.noFill();
-  g.blendMode(ADD);
+  g.blendMode(DARKEST);
 
   if (workarea) {
     g.translate(drawingOffsetX, drawingOffsetY);
@@ -55,6 +66,15 @@ void draw(PGraphics g, boolean workarea) {
 
   drawing.draw(g);
 
+  if (workarea) {
+    g.translate(-drawingOffsetX, -drawingOffsetY);
+    
+    g.noFill();
+    g.strokeWeight(1);
+    g.stroke(255);
+    g.rect(drawingOffsetX, drawingOffsetY, drawingWidth, drawingHeight);
+  }
+  
   g.popStyle();
   g.popMatrix();
 }
@@ -69,6 +89,9 @@ void keyReleased() {
       break;
     case 's':
       saveJSONObject(drawing.toJSONObject(), "settings.json");
+      break;
+    case 't':
+      drawing.duplicate();
       break;
     case 'd':
       drawing.prevEditingIndex();
@@ -120,8 +143,7 @@ void mouseReleased() {
 void render(String path) {
   PGraphics render = createGraphics(drawingWidth, drawingHeight, P3D);
   render.beginDraw();
-  draw(render);
+  draw(render, false);
   render.endDraw();
   render.save(path);
 }
-

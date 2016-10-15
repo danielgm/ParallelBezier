@@ -42,7 +42,6 @@ class BezierCurve implements IVectorFunction {
     LineSegment line0, line1;
     float dist0 = t0 * polylineLength;
     float dist1 = t1 * polylineLength;
-    float segmentDistance = 0, nextSegmentDistance = segmentLengths[0];
     int numSegments = controls.size() - 1;
     float u0, u1;
 
@@ -220,6 +219,26 @@ class BezierCurve implements IVectorFunction {
       }
     }
   }
+  
+  BezierCurve clone() {
+    BezierCurve cloned = new BezierCurve();
+    cloned.controls = cloneControls(controls);
+    cloned.numPolylinePoints = numPolylinePoints;
+    cloned.polylineLength = polylineLength;
+    cloned.polylineTimes = polylineTimes;
+    cloned.polylineLengths = polylineLengths;
+    cloned.segmentLengths = segmentLengths;
+    
+    return cloned;
+  }
+  
+  private ArrayList<LineSegment> cloneControls(ArrayList<LineSegment> controls) {
+    ArrayList<LineSegment> cloned = new ArrayList<LineSegment>();
+    for (int i = 0; i < controls.size(); i++) {
+      cloned.add(controls.get(i).clone());
+    }
+    return cloned;
+  }
 
   JSONObject toJSONObject() {
     JSONArray jsonControls = new JSONArray();
@@ -245,4 +264,3 @@ class BezierCurve implements IVectorFunction {
     }
   }
 }
-

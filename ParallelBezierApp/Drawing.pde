@@ -35,6 +35,13 @@ class Drawing {
       bezierSet.draw(g);
     }
   }
+  
+  void duplicate() {
+    if (isEditMode) {
+      ParallelBezierSet original = bezierSets.get(editingIndex);
+      bezierSets.add(original.clone());
+    }
+  }
 
   boolean isEditMode() {
     return isEditMode;
@@ -84,6 +91,7 @@ class Drawing {
     if (isEditMode) {
       ParallelBezierSet bezierSet = bezierSets.get(editingIndex);
       bezierSet.nudge(x, y);
+      bezierSet.positionChanged();
     }
   }
 

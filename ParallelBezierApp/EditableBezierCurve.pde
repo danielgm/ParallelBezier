@@ -51,6 +51,23 @@ class EditableBezierCurve {
       control.nudge(x, y);
     }
   }
+  
+  EditableBezierCurve clone() {
+    EditableBezierCurve cloned = new EditableBezierCurve();
+    cloned.curve = curve.clone();
+    cloned.exposedControls = cloneControls(exposedControls);
+    
+    return cloned;
+  }
+  
+  ArrayList<EditableLineSegment> cloneControls(ArrayList<EditableLineSegment> controls) {
+    ArrayList<EditableLineSegment> cloned = new ArrayList<EditableLineSegment>();
+    for (int i = 0; i < controls.size(); i++) {
+      cloned.add(controls.get(i).clone());
+    }
+    
+    return cloned;
+  }
 
   JSONObject toJSONObject() {
     return curve.toJSONObject();
@@ -69,4 +86,3 @@ class EditableBezierCurve {
     curve.updateFromJSONObject(json);
   }
 }
-

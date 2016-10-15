@@ -76,7 +76,7 @@ class EditableLineSegment extends LineSegment {
   }
 
   EditableLineSegment clone() {
-    return new EditableLineSegment(exposedP0, exposedP1);
+    return new EditableLineSegment(exposedP0.copy(), exposedP1.copy());
   }
 
   void mousePressed() {

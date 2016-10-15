@@ -17,7 +17,7 @@ class ParallelBezierSet {
     bezier1 = new EditableBezierCurve();
 
     // FIXME: User configurable.
-    numBeziers = 80;
+    numBeziers = 120;
     isEditMode = false;
     strokeColor = color(0);
   }
@@ -119,6 +119,19 @@ class ParallelBezierSet {
     bezier0.nudge(x, y);
     bezier1.nudge(x, y);
   }
+  
+  ParallelBezierSet clone() {
+    ParallelBezierSet cloned = new ParallelBezierSet();
+    cloned.bezier0 = bezier0.clone();
+    cloned.bezier1 = bezier1.clone();
+    cloned.addControls(cloned.bezier0);
+    cloned.addControls(cloned.bezier1);
+    cloned.numBeziers = numBeziers;
+    cloned.isEditMode = isEditMode;
+    cloned.strokeColor = strokeColor;
+    
+    return cloned;
+  }
 
   void mousePressed() {
     Iterator<EditableLineSegment> iter = controls.iterator();
@@ -141,6 +154,14 @@ class ParallelBezierSet {
     while (iter.hasNext()) {
       EditableLineSegment segment = iter.next();
       segment.mouseReleased();
+    }
+  }
+
+  void positionChanged() {
+    Iterator<EditableLineSegment> iter = controls.iterator();
+    while (iter.hasNext()) {
+      EditableLineSegment segment = iter.next();
+      segment.positionChanged();
     }
   }
 
@@ -176,4 +197,3 @@ class ParallelBezierSet {
     return json;
   }
 }
-
